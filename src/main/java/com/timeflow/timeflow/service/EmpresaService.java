@@ -28,7 +28,7 @@ public class EmpresaService {
     }
 
     public Optional<Empresa> buscarEmpresaPorCodigo(String codigo){
-        return empresaRepository.findByCodigoDeIdentificacao(codigo);
+        return empresaRepository.findByCodigoDaEmpresa(codigo);
     }
 
     public Empresa atualizar(Long id, Empresa empresaAtualizada) {

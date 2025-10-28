@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
 
-    Optional<Empresa> findByCodigoDeIdentificacao(String codigo);
+    Optional<Empresa> findByCodigoDaEmpresa(String codigo);
 }
