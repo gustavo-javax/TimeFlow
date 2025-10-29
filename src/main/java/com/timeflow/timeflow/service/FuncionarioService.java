@@ -1,6 +1,8 @@
 package com.timeflow.timeflow.service;
 
+import com.timeflow.timeflow.model.BancoHoras;
 import com.timeflow.timeflow.model.Funcionario;
+import com.timeflow.timeflow.repository.BancoHorasRepository;
 import com.timeflow.timeflow.repository.FuncionarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +18,35 @@ import java.util.UUID;
 public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
+    private final BancoHorasRepository bancoHorasRepository;
 
-    @Transactional
     public Funcionario salvar(Funcionario funcionario) {
-        if (funcionario.getCodigoDeIdentificacao() == null) {
-            funcionario.setCodigoDeIdentificacao(gerarCodigoFuncionario());
-        }
-        return funcionarioRepository.save(funcionario);
+        // Salva o funcionário primeiro
+        Funcionario salvo = funcionarioRepository.save(funcionario);
+
+        // Cria BancoHoras automaticamente vinculado ao funcionário
+        bancoHorasRepository.save(
+                BancoHoras.builder()
+                        .funcionario(salvo)
+                        .mesReferencia(java.time.YearMonth.now())
+                        .horasTrabalhadas(0.0)
+                        .horasPrevistas(44.0) // padrão de horas mensais
+                        .saldo(0.0)
+                        .build()
+        );
+
+        return salvo;
     }
 
-    public List<Funcionario> listarTodos(){
+    public List<Funcionario> listarTodos() {
         return funcionarioRepository.findAll();
     }
+
     public Optional<Funcionario> buscarPorId(Long id) {
         return funcionarioRepository.findById(id);
     }
 
-    public Optional<Funcionario> buscarPorCodigo(String codigo){
+    public Optional<Funcionario> buscarPorCodigo(String codigo) {
         return funcionarioRepository.findByCodigoDeIdentificacao(codigo);
     }
 
@@ -52,13 +66,6 @@ public class FuncionarioService {
             throw new RuntimeException("Funcionario não encontrado");
         }
         funcionarioRepository.deleteById(id);
-    }
-    private String gerarCodigoFuncionario() {
-        String codigo;
-        do {
-            codigo = "FUNC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        } while (funcionarioRepository.existsByCodigoDeIdentificacao(codigo));
-        return codigo;
     }
 
 
