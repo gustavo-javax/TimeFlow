@@ -33,12 +33,12 @@ public class RegistroPontoService {
                     .map(entrada -> Duration.between(entrada.getDataHora(), registro.getDataHora()).toMinutes() / 60.0)
                     .orElse(1.0);
 
-            bancoHorasService.buscarPorFuncionarioId(registro.getFuncionario().getId())
-                    .ifPresent(banco -> bancoHorasService.atualizarSaldo(banco, horasTrabalhadas));
+            bancoHorasService.atualizarSaldoPorFuncionario(registro.getFuncionario());
         }
 
         return salvo;
     }
+
 
 
 

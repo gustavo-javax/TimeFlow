@@ -9,8 +9,7 @@ public class EmpresaDTO {
             String nome,
             String cnpj,
             String senha,
-            String email,
-            String codigoDaEmpresa
+            String email
     ) {}
     @Builder
     public record EmpresaResponseDTO(

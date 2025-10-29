@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> {
 
     Optional<Funcionario> findByCodigoDeIdentificacao(String codigo);
+    boolean existsByCodigoDeIdentificacao(String codigoDeIdentificacao);
 }

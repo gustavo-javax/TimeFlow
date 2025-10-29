@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface BancoHorasRepository extends JpaRepository<BancoHoras, Long> {
     Optional<BancoHoras> findByFuncionarioId(Long funcionarioId);
+
+
 }

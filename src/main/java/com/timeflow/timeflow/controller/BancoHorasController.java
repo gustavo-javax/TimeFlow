@@ -35,17 +35,19 @@ public class BancoHorasController {
     }
 
 
+
+
     @GetMapping("/{id}")
     public ResponseEntity<BancoHorasDTO.BancoHorasResponseDTO> buscarPorId(@PathVariable Long id) {
         BancoHoras banco = bancoHorasService.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("BancoHoras não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Banco de horas não encontrado"));
         return ResponseEntity.ok(bancoHorasMapper.toDTO(banco));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/funcionario/{funcionarioId}")
     public ResponseEntity<BancoHorasDTO.BancoHorasResponseDTO> buscarPorFuncionarioId(@PathVariable Long funcionarioId) {
         BancoHoras banco = bancoHorasService.buscarPorFuncionarioId(funcionarioId)
-                .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Banco de horas não encontrado para o funcionário"));
         return ResponseEntity.ok(bancoHorasMapper.toDTO(banco));
     }
 
