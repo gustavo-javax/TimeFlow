@@ -9,16 +9,16 @@ public class RegistroPontoDTO {
 
     @Builder
     public record RegistroPontoRequestDTO(
-            Long funcionarioId,
-            LocalDateTime dataHora,
+            String codigoFuncionario,
             TipoRegistro tipoRegistro
     ) {}
 
     @Builder
     public record RegistroPontoResponseDTO(
             Long id,
-            Long funcionarioId,
-            String funcionarioNome,
+            String nomeFuncionario,
+            String codigoFuncionario,
+            String codigoDaEmpresa,
             LocalDateTime dataHora,
             TipoRegistro tipoRegistro
     ) {}

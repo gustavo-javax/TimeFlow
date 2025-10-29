@@ -23,20 +23,25 @@ public class FuncionarioController {
     private final EmpresaService empresaService;
 
     @PostMapping
-    public ResponseEntity<FuncionarioDTO.FuncionarioResponseDTO> criar(@RequestBody FuncionarioDTO.FuncionarioRequestDTO dto) {
-        Empresa empresa = empresaService.buscarEmpresaPorId(dto.empresaId())
+    public ResponseEntity<FuncionarioDTO.FuncionarioResponseDTO> criar(
+            @RequestBody FuncionarioDTO.FuncionarioRequestDTO dto,
+            @RequestParam String codigoDaEmpresa
+    ) {
+        Empresa empresa = empresaService.buscarEmpresaPorCodigo(codigoDaEmpresa)
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
 
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
         funcionario.setEmpresa(empresa);
 
         Funcionario salvo = funcionarioService.salvar(funcionario);
-        return ResponseEntity.ok(funcionarioMapper.toDTO(salvo));
+        FuncionarioDTO.FuncionarioResponseDTO response = funcionarioMapper.toDTO(salvo);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<FuncionarioDTO.FuncionarioResponseDTO>> listarTodos() {
-        List<FuncionarioDTO.FuncionarioResponseDTO> lista = funcionarioService.listarTodos().stream()
+        List<FuncionarioDTO.FuncionarioResponseDTO> lista = funcionarioService.listarTodos()
+                .stream()
                 .map(funcionarioMapper::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(lista);
@@ -49,7 +54,7 @@ public class FuncionarioController {
         return ResponseEntity.ok(funcionarioMapper.toDTO(funcionario));
     }
 
-    @GetMapping("/{codigo}")
+    @GetMapping("/codigo/{codigo}")
     public ResponseEntity<FuncionarioDTO.FuncionarioResponseDTO> buscarPorCodigo(@PathVariable String codigo) {
         Funcionario funcionario = funcionarioService.buscarPorCodigo(codigo)
                 .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
@@ -57,15 +62,13 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FuncionarioDTO.FuncionarioResponseDTO> atualizar(@PathVariable Long id,
-                                                                           @RequestBody FuncionarioDTO.FuncionarioRequestDTO dto) {
-        Empresa empresa = empresaService.buscarEmpresaPorId(dto.empresaId())
-                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+    public ResponseEntity<FuncionarioDTO.FuncionarioResponseDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody FuncionarioDTO.FuncionarioRequestDTO dto) {
 
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
-        funcionario.setEmpresa(empresa);
-
         Funcionario atualizado = funcionarioService.atualizar(id, funcionario);
+
         return ResponseEntity.ok(funcionarioMapper.toDTO(atualizado));
     }
 

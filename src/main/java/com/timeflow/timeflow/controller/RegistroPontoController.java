@@ -4,42 +4,50 @@ import com.timeflow.timeflow.dto.RegistroPontoDTO;
 import com.timeflow.timeflow.mapper.RegistroPontoMapper;
 import com.timeflow.timeflow.model.Funcionario;
 import com.timeflow.timeflow.model.RegistroPonto;
+import com.timeflow.timeflow.model.enums.TipoRegistro;
 import com.timeflow.timeflow.service.FuncionarioService;
 import com.timeflow.timeflow.service.RegistroPontoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/registroponto")
 @RequiredArgsConstructor
-
 public class RegistroPontoController {
 
     private final RegistroPontoService registroPontoService;
     private final FuncionarioService funcionarioService;
     private final RegistroPontoMapper registroPontoMapper;
 
+    // CRIAR registro de ponto
     @PostMapping
-    public ResponseEntity<RegistroPontoDTO.RegistroPontoResponseDTO> registrar
-            (@RequestBody RegistroPontoDTO.RegistroPontoRequestDTO dto) {
-        Funcionario funcionario = funcionarioService.buscarPorId(dto.funcionarioId())
-                .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
+    public ResponseEntity<RegistroPontoDTO.RegistroPontoResponseDTO> registrarPonto(
+            @RequestParam String codigoFuncionario,
+            @RequestParam TipoRegistro tipo) {
 
-        RegistroPonto registro = registroPontoMapper.toEntity(dto);
-        registro.setFuncionario(funcionario);
+        Funcionario funcionario = funcionarioService.buscarPorCodigo(codigoFuncionario)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        RegistroPonto registro = RegistroPonto.builder()
+                .funcionario(funcionario)
+                .tipoRegistro(tipo)
+                .dataHora(LocalDateTime.now())
+                .build();
 
         RegistroPonto salvo = registroPontoService.registrarPonto(registro);
         return ResponseEntity.ok(registroPontoMapper.toDTO(salvo));
     }
 
-    // READ ALL por funcionário
+    // LISTAR todos os registros de um funcionário
     @GetMapping("/funcionario/{funcionarioId}")
-    public ResponseEntity<List<RegistroPontoDTO.RegistroPontoResponseDTO>> listarPorFuncionario
-    (@PathVariable Long funcionarioId) {
+    public ResponseEntity<List<RegistroPontoDTO.RegistroPontoResponseDTO>> listarPorFuncionario(
+            @PathVariable Long funcionarioId) {
+
         List<RegistroPonto> registros = registroPontoService.listarPorFuncionario(funcionarioId);
         List<RegistroPontoDTO.RegistroPontoResponseDTO> lista = registros.stream()
                 .map(registroPontoMapper::toDTO)
@@ -47,7 +55,7 @@ public class RegistroPontoController {
         return ResponseEntity.ok(lista);
     }
 
-    // READ BY ID
+    // BUSCAR registro por ID
     @GetMapping("/{id}")
     public ResponseEntity<RegistroPontoDTO.RegistroPontoResponseDTO> buscarPorId(@PathVariable Long id) {
         RegistroPonto registro = registroPontoService.buscarPorId(id)
@@ -55,7 +63,7 @@ public class RegistroPontoController {
         return ResponseEntity.ok(registroPontoMapper.toDTO(registro));
     }
 
-    // DELETE
+    // DELETAR registro por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         registroPontoService.deletar(id);

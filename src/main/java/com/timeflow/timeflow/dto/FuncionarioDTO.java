@@ -7,10 +7,8 @@ public class FuncionarioDTO {
     @Builder
     public record FuncionarioRequestDTO(
             String nome,
-            String cargo,
-            String codigoDeIdentificacao,
-            Boolean ativo,
-            Long empresaId
+            String cargo
+
     ) {}
 
     @Builder
@@ -20,6 +18,9 @@ public class FuncionarioDTO {
             String cargo,
             String codigoDeIdentificacao,
             Boolean ativo,
-            String empresaNome
+            String empresaNome,
+            Long empresaId,
+            String codigoDaEmpresa
+
     ) {}
 }

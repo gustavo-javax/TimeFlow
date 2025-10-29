@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class EmpresaService {
     private final EmpresaRepository empresaRepository;
 
     public Empresa salvar(Empresa empresa){
+        empresa.setCodigoDaEmpresa(gerarCodigoEmpresa());
         return empresaRepository.save(empresa);
     }
 
@@ -57,6 +59,14 @@ public class EmpresaService {
             throw new RuntimeException("Empresa não encontrada");
         }
         empresaRepository.deleteById(id);
+    }
+
+    private String gerarCodigoEmpresa() {
+        String codigo;
+        do {
+            codigo = "EMP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        } while (empresaRepository.existsByCodigoDaEmpresa(codigo));
+        return codigo;
     }
 
 }
