@@ -21,27 +21,30 @@ public class RegistroPontoService {
     public RegistroPonto registrarPonto(RegistroPonto registro) {
         RegistroPonto salvo = registroPontoRepository.save(registro);
 
+        // Quando o tipo de registro for SAÍDA, calcula as horas trabalhadas no período
         if (registro.getTipoRegistro() == TipoRegistro.SAIDA) {
-
             Optional<RegistroPonto> ultimaEntrada = registroPontoRepository
                     .findTopByFuncionarioIdAndTipoRegistroOrderByDataHoraDesc(
                             registro.getFuncionario().getId(),
                             TipoRegistro.ENTRADA
                     );
 
-            double horasTrabalhadas = ultimaEntrada
+            double horasTrabalhadasNoPeriodo = ultimaEntrada
                     .map(entrada -> Duration.between(entrada.getDataHora(), registro.getDataHora()).toMinutes() / 60.0)
-                    .orElse(1.0);
+                    .orElse(0.0);
 
-            bancoHorasService.atualizarSaldoPorFuncionario(registro.getFuncionario());
+            // Atualiza as horas no banco de horas do funcionário
+            bancoHorasService.buscarPorFuncionarioId(registro.getFuncionario().getId())
+                    .ifPresent(banco -> {
+                        double novasHoras = banco.getHorasTrabalhadas() + horasTrabalhadasNoPeriodo;
+                        banco.setHorasTrabalhadas(novasHoras);
+                        banco.setSaldo(novasHoras - banco.getHorasPrevistas());
+                        bancoHorasService.salvar(banco);
+                    });
         }
 
         return salvo;
     }
-
-
-
-
 
     public List<RegistroPonto> listarPorFuncionario(Long funcionarioId) {
         return registroPontoRepository.findAllByFuncionarioId(funcionarioId);
@@ -55,5 +58,7 @@ public class RegistroPontoService {
         }
         registroPontoRepository.deleteById(id);
     }
+
+
 }
 

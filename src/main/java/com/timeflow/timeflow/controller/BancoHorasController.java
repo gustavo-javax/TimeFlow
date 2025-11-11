@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,9 +35,6 @@ public class BancoHorasController {
         return ResponseEntity.ok(bancoHorasMapper.toDTO(salvo));
     }
 
-
-
-
     @GetMapping("/{id}")
     public ResponseEntity<BancoHorasDTO.BancoHorasResponseDTO> buscarPorId(@PathVariable Long id) {
         BancoHoras banco = bancoHorasService.buscarPorId(id)
@@ -51,23 +49,32 @@ public class BancoHorasController {
         return ResponseEntity.ok(bancoHorasMapper.toDTO(banco));
     }
 
-
-
     @PutMapping("/{id}")
-    public ResponseEntity<BancoHorasDTO.BancoHorasResponseDTO> atualizar(@PathVariable Long id,
-                                                                         @RequestBody BancoHorasDTO.BancoHorasRequestDTO dto) {
-        BancoHoras bancoHoras = bancoHorasService.buscarPorId(id)
+    public ResponseEntity<BancoHorasDTO.BancoHorasResponseDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody BancoHorasDTO.BancoHorasRequestDTO dto) {
+
+        BancoHoras bancoHorasExistente = bancoHorasService.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("BancoHoras não encontrado"));
 
         Funcionario funcionario = funcionarioService.buscarPorId(dto.funcionarioId())
                 .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
 
-        bancoHoras = bancoHorasMapper.toEntity(dto);
-        bancoHoras.setFuncionario(funcionario);
+        bancoHorasExistente.setFuncionario(funcionario);
+        bancoHorasExistente.setHorasTrabalhadas(dto.horasTrabalhadas());
+        bancoHorasExistente.setHorasPrevistas(dto.horasPrevistas());
 
-        BancoHoras atualizado = bancoHorasService.atualizar(bancoHoras);
+        if (dto.mesReferencia() != null && !dto.mesReferencia().isEmpty()) {
+            bancoHorasExistente.setMesReferencia(YearMonth.parse(dto.mesReferencia()));
+        }
+
+        double saldo = bancoHorasExistente.getHorasTrabalhadas() - bancoHorasExistente.getHorasPrevistas();
+        bancoHorasExistente.setSaldo(saldo);
+
+        BancoHoras atualizado = bancoHorasService.atualizar(bancoHorasExistente);
         return ResponseEntity.ok(bancoHorasMapper.toDTO(atualizado));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {

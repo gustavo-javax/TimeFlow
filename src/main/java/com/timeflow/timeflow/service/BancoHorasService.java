@@ -5,6 +5,7 @@ import com.timeflow.timeflow.model.Funcionario;
 import com.timeflow.timeflow.model.RegistroPonto;
 import com.timeflow.timeflow.repository.BancoHorasRepository;
 import com.timeflow.timeflow.repository.RegistroPontoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class BancoHorasService {
         return bancoHorasRepository.findByFuncionarioId(funcionarioId);
     }
 
+    @Transactional
     public BancoHoras atualizar(BancoHoras bancoHoras) {
         return bancoHorasRepository.save(bancoHoras);
     }
