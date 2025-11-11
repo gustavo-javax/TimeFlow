@@ -20,7 +20,10 @@ public class FuncionarioDTO {
             Boolean ativo,
             String empresaNome,
             Long empresaId,
-            String codigoDaEmpresa
+            String codigoDaEmpresa,
+            Double horasTrabalhadas,
+            Double saldo,
+            String mesReferencia
 
     ) {}
 }
